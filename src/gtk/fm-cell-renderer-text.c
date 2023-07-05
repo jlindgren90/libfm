@@ -245,7 +245,9 @@ static void _get_size(GtkCellRenderer *cell, GtkWidget *widget,
         xpad = &a_xpad;
     if (!ypad)
         ypad = &a_ypad;
-    gtk_cell_renderer_get_padding(cell, xpad, ypad);
+    gtk_cell_renderer_get_padding(cell, xpad, NULL);
+    *ypad = 0; /* jlindgren: don't add vertical padding */
+
     /* Calculate the real x and y offsets. */
     if (x_offset)
     {
@@ -422,10 +424,14 @@ static void fm_cell_renderer_text_get_size(GtkCellRenderer            *cell,
                                            gint                       *height)
 {
     char *text;
+    gint xpad;
 
     g_object_get(G_OBJECT(cell), "text", &text, NULL);
-    _get_size(cell, widget, NULL, text, rectangle, width, height, NULL, NULL,
+    _get_size(cell, widget, NULL, text, rectangle, width, height, &xpad, NULL,
               x_offset, y_offset, NULL);
+    /* jlindgren: account for padding */
+    if (width)
+        *width += 2 * xpad;
     g_free(text);
 }
 
